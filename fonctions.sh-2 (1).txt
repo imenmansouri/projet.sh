@@ -1,0 +1,60 @@
+#!/bin/bash
+
+lister()
+{
+ls /sys/class/net 
+}
+
+sauvegarder()
+{
+echo "entrez l interface"
+read $i
+if [[ $i="ens33" ]]
+ then ifconfig ens33 >> interface_ens33
+fi 
+if [[ $i="lo" ]]
+then ifconfig lo >> interface_lo
+fi
+
+}
+
+desactiver()
+{
+systemctl stop NetworkManager
+systemctl status NetworkManager
+}
+
+configman()
+{
+echo "entrez l interface"
+read $i
+echo "interface $i"
+if [[ $i="ens33" ]]
+then
+sudo ifconfig ens33 192.0.0.10 netmask 255.255.255.0 broadcast 192.0.0.0
+route add default gw 30.0.01
+route -n
+service networking restart
+ifconfig ens33
+fi
+}
+
+c=$(zenity --entry --title="Commandes" --text="Tapez votre option"
+)
+
+case $c in
+	-l)lister;;
+	-s)sauvegarder;;
+	-d)desactiver;;
+        -c)configman;;
+        -h)
+          echo "-l,lister les interfaces reseaux"
+          echo "-s,sauvegarder configuration d'une interface reseau"
+          echo "-d,desactiver NetworkManager"
+          echo "-c,configurer manuellement un reseau"
+          echo "-d+interface,configurer dynamiquement une interface"
+         
+           ;;
+         *)
+           echo "erreur, essayez option -h"
+esac
